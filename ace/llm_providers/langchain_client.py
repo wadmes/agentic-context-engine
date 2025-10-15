@@ -95,7 +95,7 @@ class LangChainLiteLLMClient(LLMClient):
 
     def _filter_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Filter out ACE-specific parameters that shouldn't go to LangChain."""
-        ace_specific_params = {'refinement_round'}
+        ace_specific_params = {'refinement_round', 'max_refinement_rounds'}
         return {k: v for k, v in kwargs.items() if k not in ace_specific_params}
 
     def complete(self, prompt: str, **kwargs) -> LLMResponse:
