@@ -20,6 +20,14 @@ from .adaptation import (
     AdapterStepResult,
 )
 
+# Import production LLM clients if available
+try:
+    from .llm_providers import LiteLLMClient
+    LITELLM_AVAILABLE = True
+except ImportError:
+    LiteLLMClient = None
+    LITELLM_AVAILABLE = False
+
 __all__ = [
     "Bullet",
     "Playbook",
@@ -28,6 +36,7 @@ __all__ = [
     "LLMClient",
     "DummyLLMClient",
     "TransformersLLMClient",
+    "LiteLLMClient",
     "Generator",
     "Reflector",
     "Curator",
@@ -40,4 +49,5 @@ __all__ = [
     "TaskEnvironment",
     "EnvironmentResult",
     "AdapterStepResult",
+    "LITELLM_AVAILABLE",
 ]

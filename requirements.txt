@@ -1,0 +1,9 @@
+# Core dependencies
+litellm>=1.0.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# Optional for local model support (already in use)
+# transformers>=4.30.0
+# torch>=2.0.0
+# accelerate>=0.20.0
