@@ -70,3 +70,6 @@ venv.bak/
 # Project specific
 *.pdf
 ACE_IMPROVEMENTS.md
+*.egg-info/
+reports/
+docs/method_outline.md

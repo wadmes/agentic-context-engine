@@ -20,7 +20,7 @@ except FileNotFoundError:
 
 setup(
     name="ace-framework",
-    version="0.1.0",
+    version="0.2.0",
     author="Kayba.ai",
     author_email="hello@kayba.ai",
     description="Build self-improving AI agents that learn from experience",

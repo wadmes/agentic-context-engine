@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ace-framework"
-version = "0.1.0"
+version = "0.2.0"
 description = "Build self-improving AI agents that learn from experience"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -69,6 +69,7 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "black>=23.0.0",
     "mypy>=1.0.0",
+    "git-changelog>=2.5.0",
 ]
 
 [project.urls]

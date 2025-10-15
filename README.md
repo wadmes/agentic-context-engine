@@ -2,8 +2,10 @@
 
 **Build self-improving AI agents that learn from experience**
 
+[![PyPI version](https://badge.fury.io/py/ace-framework.svg)](https://pypi.org/project/ace-framework/)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://github.com/Kayba-ai/agentic-context-engine/actions/workflows/test.yml/badge.svg)](https://github.com/Kayba-ai/agentic-context-engine/actions)
 [![Paper](https://img.shields.io/badge/Paper-arXiv:2510.04618-red.svg)](https://arxiv.org/abs/2510.04618)
 
 🧠 **ACE** is a framework for building AI agents that get smarter over time by learning from their mistakes and successes.
@@ -11,6 +13,10 @@
 💡 Based on the paper "Agentic Context Engineering" from Stanford/SambaNova - ACE helps your LLM agents build a "playbook" of strategies that improves with each task.
 
 🔌 **Works with any LLM** - OpenAI, Anthropic Claude, Google Gemini, and 100+ more providers out of the box!
+
+## Quick Links
+
+📦 [PyPI Package](https://pypi.org/project/ace-framework/) | 📚 [Documentation](https://github.com/Kayba-ai/agentic-context-engine/wiki) | 🐛 [Issues](https://github.com/Kayba-ai/agentic-context-engine/issues) | 💬 [Discussions](https://github.com/Kayba-ai/agentic-context-engine/discussions)
 
 ## Quick Start
 
@@ -271,6 +277,36 @@ Based on the open reproduction at: https://github.com/sci-m-wang/ACE-open
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+## Troubleshooting
+
+### Installation Issues
+
+**Problem**: `pip install ace-framework` fails
+- **Solution**: Ensure Python 3.9+ is installed: `python --version`
+- **Solution**: Upgrade pip: `pip install --upgrade pip`
+
+**Problem**: ImportError when using LangChain integration
+- **Solution**: Install with extras: `pip install ace-framework[langchain]`
+
+**Problem**: LiteLLM API errors
+- **Solution**: Check your API keys are set correctly in `.env`
+- **Solution**: Verify your API key has sufficient credits/quota
+
+### Common Errors
+
+**"Unrecognized request argument"**: The LLM provider doesn't support a parameter
+- This is usually handled automatically, but if it persists, please report an issue
+
+**Memory issues with large playbooks**:
+- Use online adaptation mode instead of offline
+- Periodically save and reload playbooks
+
+**Rate limiting errors**:
+- Add delays between requests
+- Use exponential backoff (built into LiteLLM)
+
+For more help, check the [Issues](https://github.com/Kayba-ai/agentic-context-engine/issues) page.
 
 ---
 
