@@ -49,10 +49,15 @@ dependencies = [
 [project.optional-dependencies]
 all = [
     "litellm>=1.0.0",
+    "langchain-litellm>=0.2.0",
     "transformers>=4.0.0",
     "torch>=2.0.0",
 ]
 litellm = [
+    "litellm>=1.0.0",
+]
+langchain = [
+    "langchain-litellm>=0.2.0",
     "litellm>=1.0.0",
 ]
 transformers = [

@@ -45,6 +45,7 @@ setup(
     extras_require={
         "all": optional_requirements,
         "litellm": ["litellm>=1.0.0"],
+        "langchain": ["langchain-litellm>=0.2.0", "litellm>=1.0.0"],
         "transformers": ["transformers>=4.0.0", "torch>=2.0.0"],
         "dev": [
             "pytest>=7.0.0",

@@ -18,8 +18,13 @@
 
 ### Install ACE:
 ```bash
+# Basic installation
 pip install ace-framework
-# or for development:
+
+# With LangChain support (for advanced routing & chains)
+pip install ace-framework[langchain]
+
+# For development
 pip install -r requirements.txt
 ```
 
@@ -90,6 +95,12 @@ python examples/simple_ace_example.py
 ### Advanced Examples with Different LLMs
 ```python
 python examples/quickstart_litellm.py
+```
+
+### LangChain Integration (Advanced)
+```python
+# With routing and load balancing
+python examples/langchain_example.py
 ```
 
 Check out the `examples/` folder for more!
