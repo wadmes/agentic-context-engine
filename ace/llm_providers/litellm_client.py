@@ -217,10 +217,13 @@ class LiteLLMClient(LLMClient):
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
             "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
-            "top_p": kwargs.get("top_p", self.config.top_p),
             "timeout": kwargs.get("timeout", self.config.timeout),
             "num_retries": kwargs.get("num_retries", self.config.max_retries),
         }
+
+        # Only add top_p if not GPT-5
+        if "gpt-5" not in self.config.model.lower():
+            call_params["top_p"] = kwargs.get("top_p", self.config.top_p)
 
         # Force JSON response for models that support it
         if "gpt" in self.config.model.lower() and "json" in prompt.lower():
@@ -290,10 +293,13 @@ class LiteLLMClient(LLMClient):
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
             "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
-            "top_p": kwargs.get("top_p", self.config.top_p),
             "timeout": kwargs.get("timeout", self.config.timeout),
             "num_retries": kwargs.get("num_retries", self.config.max_retries),
         }
+
+        # Only add top_p if not GPT-5
+        if "gpt-5" not in self.config.model.lower():
+            call_params["top_p"] = kwargs.get("top_p", self.config.top_p)
 
         # Force JSON response for models that support it
         if "gpt" in self.config.model.lower() and "json" in prompt.lower():

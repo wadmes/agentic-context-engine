@@ -29,16 +29,17 @@ class SimpleEnvironment(TaskEnvironment):
     def evaluate(self, sample: Sample, generator_output):
         response = generator_output.final_answer.lower()
 
-        if "no" in response and "seahorse" in response:
+        # Check if they correctly said there's no seahorse emoji
+        if ("no" in response or "doesn't exist" in response or "not available" in response) and "seahorse" in response:
             return EnvironmentResult(
-                feedback="✅ Correct!",
-                ground_truth="No seahorse emoji exists",
+                feedback="✅ Correct! There is no seahorse emoji.",
+                ground_truth="There is no seahorse emoji in Unicode",
                 metrics={"accuracy": 1.0}
             )
         else:
             return EnvironmentResult(
-                feedback="❌ Wrong. There is no seahorse emoji.",
-                ground_truth="No seahorse emoji exists",
+                feedback="❌ Wrong. There is no seahorse emoji in Unicode.",
+                ground_truth="There is no seahorse emoji in Unicode",
                 metrics={"accuracy": 0.0}
             )
 
@@ -47,14 +48,14 @@ def main():
     console.print("[bold cyan]🌊 Kayba Test - Auto-Learning Demo[/bold cyan]\n")
 
     # Setup
-    client = LiteLLMClient(model="gpt-4o", temperature=0.3, max_tokens=1000)
+    client = LiteLLMClient(model="gpt-5", temperature=1, max_tokens=4000, timeout=120)
     generator = Generator(client)
     reflector = Reflector(client)
     curator = Curator(client)
     playbook = Playbook()
     environment = SimpleEnvironment()
 
-    question = "Is there a seahorse emoji?"
+    question = "Return the seahorse emoji"
     sample = Sample(question=question)
 
     # First ask
