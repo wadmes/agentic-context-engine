@@ -91,6 +91,45 @@ ACE uses three AI "roles" that work together to help your agent improve:
 
 Think of it like a sports team reviewing game footage to get better!
 
+### The ACE Learning Loop
+
+```mermaid
+flowchart TD
+    Start([New Task/Question]) --> Generator
+
+    subgraph Playbook ["📚 Playbook (Evolving Context)"]
+        Bullets["📝 Strategy Bullets<br/>• Helpful strategies ✓<br/>• Harmful patterns ✗<br/>• Neutral observations ○"]
+    end
+
+    Generator["🎯 Generator<br/>Uses playbook strategies<br/>to produce answer"] --> Output[Answer Output]
+
+    Playbook -.->|Provides Context| Generator
+
+    Output --> Environment["🌍 Task Environment<br/>Evaluates answer<br/>Provides feedback"]
+
+    Environment --> Reflector["🔍 Reflector<br/>Analyzes outcome<br/>Tags bullet contributions:<br/>• Which helped?<br/>• Which hurt?<br/>• What's missing?"]
+
+    Reflector --> Curator["📝 Curator<br/>Emits delta operations"]
+
+    Curator --> DeltaOps{{"🔄 Delta Operations<br/>ADD new strategies<br/>UPDATE existing ones<br/>TAG helpful/harmful<br/>REMOVE outdated"}}
+
+    DeltaOps -->|Incremental<br/>Updates| Playbook
+
+    Environment -->|Ground Truth +<br/>Feedback| Reflector
+
+    style Playbook fill:#e1f5fe
+    style Generator fill:#fff3e0
+    style Reflector fill:#f3e5f5
+    style Curator fill:#e8f5e9
+    style DeltaOps fill:#fff9c4
+```
+
+**Key Insights:**
+- **Incremental Learning**: The playbook evolves through small delta updates, not complete rewrites
+- **No Context Collapse**: Strategies are preserved and refined, preventing loss of valuable knowledge
+- **Self-Improving**: Each task makes the agent smarter by updating its strategy playbook
+- **Three-Role Architecture**: Separation of concerns - generating, analyzing, and updating are distinct phases
+
 ## Examples
 
 ### Simple Q&A Agent
