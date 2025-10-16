@@ -42,7 +42,41 @@ class GeneratorOutput:
 
 
 class Generator:
-    """Produces trajectories using the current playbook."""
+    """
+    Produces answers using the current playbook of strategies.
+
+    The Generator is one of three core ACE roles. It takes a question and
+    uses the accumulated strategies in the playbook to produce reasoned answers.
+
+    Args:
+        llm: The LLM client to use for generation
+        prompt_template: Custom prompt template (uses GENERATOR_PROMPT by default)
+        max_retries: Maximum attempts if JSON parsing fails (default: 3)
+
+    Example:
+        >>> from ace import Generator, LiteLLMClient, Playbook
+        >>> client = LiteLLMClient(model="gpt-3.5-turbo")
+        >>> generator = Generator(client)
+        >>> playbook = Playbook()
+        >>>
+        >>> output = generator.generate(
+        ...     question="What is the capital of France?",
+        ...     context="Answer concisely",
+        ...     playbook=playbook
+        ... )
+        >>> print(output.final_answer)
+        Paris
+
+    Custom Prompt Example:
+        >>> custom_prompt = '''
+        ... Use this playbook: {playbook}
+        ... Question: {question}
+        ... Context: {context}
+        ... Reflection: {reflection}
+        ... Return JSON with: reasoning, bullet_ids, final_answer
+        ... '''
+        >>> generator = Generator(client, prompt_template=custom_prompt)
+    """
 
     def __init__(
         self,
@@ -64,6 +98,19 @@ class Generator:
         reflection: Optional[str] = None,
         **kwargs: Any,
     ) -> GeneratorOutput:
+        """
+        Generate an answer using the playbook strategies.
+
+        Args:
+            question: The question to answer
+            context: Additional context or requirements
+            playbook: The current playbook of strategies
+            reflection: Optional reflection from previous attempts
+            **kwargs: Additional arguments passed to the LLM
+
+        Returns:
+            GeneratorOutput with reasoning, final_answer, and bullet_ids used
+        """
         base_prompt = self.prompt_template.format(
             playbook=playbook.as_prompt() or "(empty playbook)",
             reflection=_format_optional(reflection),
@@ -119,7 +166,33 @@ class ReflectorOutput:
 
 
 class Reflector:
-    """Extracts lessons and bullet feedback from trajectories."""
+    """
+    Analyzes generator outputs to extract lessons and improve strategies.
+
+    The Reflector is the second ACE role. It analyzes the Generator's output
+    and environment feedback to understand what went right or wrong, classifying
+    which playbook bullets were helpful, harmful, or neutral.
+
+    Args:
+        llm: The LLM client to use for reflection
+        prompt_template: Custom prompt template (uses REFLECTOR_PROMPT by default)
+
+    Example:
+        >>> from ace import Reflector, LiteLLMClient
+        >>> client = LiteLLMClient(model="gpt-3.5-turbo")
+        >>> reflector = Reflector(client)
+        >>>
+        >>> reflection = reflector.reflect(
+        ...     question="What is 2+2?",
+        ...     context="Show your work",
+        ...     generator_trajectory="Reasoning: 2+2 = 4",
+        ...     final_answer="4",
+        ...     execution_feedback="Correct!",
+        ...     playbook=playbook
+        ... )
+        >>> print(reflection.diagnosis)
+        Successfully solved the arithmetic problem
+    """
 
     def __init__(
         self,
@@ -208,7 +281,50 @@ class CuratorOutput:
 
 
 class Curator:
-    """Transforms reflections into delta updates."""
+    """
+    Transforms reflections into actionable playbook updates.
+
+    The Curator is the third ACE role. It analyzes the Reflector's output
+    and decides how to update the playbook - adding new strategies, updating
+    existing ones, or removing harmful patterns.
+
+    Args:
+        llm: The LLM client to use for curation
+        prompt_template: Custom prompt template (uses CURATOR_PROMPT by default)
+        max_retries: Maximum attempts if JSON parsing fails (default: 3)
+
+    Example:
+        >>> from ace import Curator, LiteLLMClient
+        >>> client = LiteLLMClient(model="gpt-4")
+        >>> curator = Curator(client)
+        >>>
+        >>> # Process reflection to get delta updates
+        >>> output = curator.curate(
+        ...     reflection=reflection_output,
+        ...     playbook=playbook,
+        ...     question_context="Math problem solving",
+        ...     progress="5/10 problems solved correctly"
+        ... )
+        >>> # Apply the delta to update playbook
+        >>> playbook.apply_delta(output.delta)
+
+    Custom Prompt Example:
+        >>> custom_prompt = '''
+        ... Progress: {progress}
+        ... Stats: {stats}
+        ... Reflection: {reflection}
+        ... Playbook: {playbook}
+        ... Context: {question_context}
+        ... Decide what changes to make. Return JSON with delta operations.
+        ... '''
+        >>> curator = Curator(client, prompt_template=custom_prompt)
+
+    The Curator emits DeltaOperations:
+        - ADD: Add new strategy bullets
+        - UPDATE: Modify existing bullets
+        - TAG: Update helpful/harmful counts
+        - REMOVE: Delete unhelpful bullets
+    """
 
     def __init__(
         self,
@@ -230,6 +346,22 @@ class Curator:
         progress: str,
         **kwargs: Any,
     ) -> CuratorOutput:
+        """
+        Generate delta operations to update the playbook based on reflection.
+
+        Args:
+            reflection: The Reflector's analysis of what went right/wrong
+            playbook: Current playbook to potentially update
+            question_context: Description of the task domain or question type
+            progress: Current progress summary (e.g., "5/10 correct")
+            **kwargs: Additional arguments passed to the LLM
+
+        Returns:
+            CuratorOutput containing the delta operations to apply
+
+        Raises:
+            RuntimeError: If unable to produce valid JSON after max_retries
+        """
         base_prompt = self.prompt_template.format(
             progress=progress,
             stats=json.dumps(playbook.stats()),
