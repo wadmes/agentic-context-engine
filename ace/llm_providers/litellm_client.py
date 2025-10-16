@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 try:
     import litellm
     from litellm import completion, acompletion, Router
+
     LITELLM_AVAILABLE = True
 except ImportError:
     LITELLM_AVAILABLE = False
@@ -139,9 +140,15 @@ class LiteLLMClient(LLMClient):
         """Set up API keys from config or environment variables."""
         if not self.config.api_key:
             # Try to get API key from environment based on model provider
-            if "gpt" in self.config.model.lower() or "openai" in self.config.model.lower():
+            if (
+                "gpt" in self.config.model.lower()
+                or "openai" in self.config.model.lower()
+            ):
                 self.config.api_key = os.getenv("OPENAI_API_KEY")
-            elif "claude" in self.config.model.lower() or "anthropic" in self.config.model.lower():
+            elif (
+                "claude" in self.config.model.lower()
+                or "anthropic" in self.config.model.lower()
+            ):
                 self.config.api_key = os.getenv("ANTHROPIC_API_KEY")
             elif "cohere" in self.config.model.lower():
                 self.config.api_key = os.getenv("COHERE_API_KEY")
@@ -153,31 +160,39 @@ class LiteLLMClient(LLMClient):
         model_list = []
 
         # Add primary model
-        model_list.append({
-            "model_name": self.config.model,
-            "litellm_params": {
-                "model": self.config.model,
-                "api_key": self.config.api_key,
-                "api_base": self.config.api_base,
-                "temperature": self.config.temperature,
-                "max_tokens": self.config.max_tokens,
+        model_list.append(
+            {
+                "model_name": self.config.model,
+                "litellm_params": {
+                    "model": self.config.model,
+                    "api_key": self.config.api_key,
+                    "api_base": self.config.api_base,
+                    "temperature": self.config.temperature,
+                    "max_tokens": self.config.max_tokens,
+                },
             }
-        })
+        )
 
         # Add fallback models
         for fallback_model in self.config.fallbacks or []:
-            model_list.append({
-                "model_name": fallback_model,
-                "litellm_params": {
-                    "model": fallback_model,
-                    "temperature": self.config.temperature,
-                    "max_tokens": self.config.max_tokens,
+            model_list.append(
+                {
+                    "model_name": fallback_model,
+                    "litellm_params": {
+                        "model": fallback_model,
+                        "temperature": self.config.temperature,
+                        "max_tokens": self.config.max_tokens,
+                    },
                 }
-            })
+            )
 
         self.router = Router(
             model_list=model_list,
-            fallbacks=[{self.config.model: self.config.fallbacks}] if self.config.fallbacks else None,
+            fallbacks=(
+                [{self.config.model: self.config.fallbacks}]
+                if self.config.fallbacks
+                else None
+            ),
             num_retries=self.config.max_retries,
             timeout=self.config.timeout,
         )
@@ -214,9 +229,14 @@ class LiteLLMClient(LLMClient):
             call_params["api_base"] = self.config.api_base
 
         # Filter out ACE-specific parameters and add remaining kwargs
-        ace_specific_params = {'refinement_round', 'max_refinement_rounds'}
-        call_params.update({k: v for k, v in kwargs.items()
-                          if k not in call_params and k not in ace_specific_params})
+        ace_specific_params = {"refinement_round", "max_refinement_rounds"}
+        call_params.update(
+            {
+                k: v
+                for k, v in kwargs.items()
+                if k not in call_params and k not in ace_specific_params
+            }
+        )
 
         try:
             # Use router if available, otherwise direct completion
@@ -232,7 +252,11 @@ class LiteLLMClient(LLMClient):
             metadata = {
                 "model": response.model,
                 "usage": response.usage.model_dump() if response.usage else None,
-                "cost": response._hidden_params.get("response_cost", None) if hasattr(response, "_hidden_params") else None,
+                "cost": (
+                    response._hidden_params.get("response_cost", None)
+                    if hasattr(response, "_hidden_params")
+                    else None
+                ),
                 "provider": self._get_provider_from_model(response.model),
             }
 
@@ -274,9 +298,14 @@ class LiteLLMClient(LLMClient):
             call_params["api_base"] = self.config.api_base
 
         # Filter out ACE-specific parameters and add remaining kwargs
-        ace_specific_params = {'refinement_round', 'max_refinement_rounds'}
-        call_params.update({k: v for k, v in kwargs.items()
-                          if k not in call_params and k not in ace_specific_params})
+        ace_specific_params = {"refinement_round", "max_refinement_rounds"}
+        call_params.update(
+            {
+                k: v
+                for k, v in kwargs.items()
+                if k not in call_params and k not in ace_specific_params
+            }
+        )
 
         try:
             # Use router if available, otherwise direct completion
@@ -292,7 +321,11 @@ class LiteLLMClient(LLMClient):
             metadata = {
                 "model": response.model,
                 "usage": response.usage.model_dump() if response.usage else None,
-                "cost": response._hidden_params.get("response_cost", None) if hasattr(response, "_hidden_params") else None,
+                "cost": (
+                    response._hidden_params.get("response_cost", None)
+                    if hasattr(response, "_hidden_params")
+                    else None
+                ),
                 "provider": self._get_provider_from_model(response.model),
             }
 
@@ -364,25 +397,34 @@ class LiteLLMClient(LLMClient):
         # In practice, LiteLLM supports 100+ models
         return [
             # OpenAI
-            "gpt-4", "gpt-4-turbo-preview", "gpt-4o", "gpt-4o-mini",
-            "gpt-3.5-turbo", "gpt-3.5-turbo-16k",
-
+            "gpt-4",
+            "gpt-4-turbo-preview",
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k",
             # Anthropic
-            "claude-3-opus-20240229", "claude-3-sonnet-20240229",
-            "claude-3-haiku-20240307", "claude-2.1", "claude-2",
-
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307",
+            "claude-2.1",
+            "claude-2",
             # Google
-            "gemini-pro", "gemini-pro-vision", "palm-2",
-
+            "gemini-pro",
+            "gemini-pro-vision",
+            "palm-2",
             # Cohere
-            "command", "command-light", "command-nightly",
-
+            "command",
+            "command-light",
+            "command-nightly",
             # Meta
-            "llama-2-70b", "llama-2-13b", "llama-2-7b",
-
+            "llama-2-70b",
+            "llama-2-13b",
+            "llama-2-7b",
             # Mistral
-            "mistral-7b", "mistral-medium", "mixtral-8x7b",
-
+            "mistral-7b",
+            "mistral-medium",
+            "mixtral-8x7b",
             # Note: Many more models are supported
             # See: https://docs.litellm.ai/docs/providers
         ]

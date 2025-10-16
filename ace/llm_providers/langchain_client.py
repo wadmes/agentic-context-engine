@@ -6,6 +6,7 @@ import logging
 try:
     from langchain_litellm import ChatLiteLLM, ChatLiteLLMRouter
     from litellm import Router
+
     LANGCHAIN_AVAILABLE = True
 except ImportError:
     LANGCHAIN_AVAILABLE = False
@@ -59,7 +60,7 @@ class LangChainLiteLLMClient(LLMClient):
         router: Optional[Any] = None,  # Router from litellm
         temperature: float = 0.0,
         max_tokens: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ):
         if not LANGCHAIN_AVAILABLE:
             raise ImportError(
@@ -74,28 +75,27 @@ class LangChainLiteLLMClient(LLMClient):
 
         # Initialize the appropriate LangChain client
         if router:
-            logger.info(f"Initializing LangChainLiteLLMClient with router for model: {model}")
+            logger.info(
+                f"Initializing LangChainLiteLLMClient with router for model: {model}"
+            )
             self.llm = ChatLiteLLMRouter(
                 router=router,
                 model_name=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                **kwargs
+                **kwargs,
             )
             self.is_router = True
         else:
             logger.info(f"Initializing LangChainLiteLLMClient for model: {model}")
             self.llm = ChatLiteLLM(
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                **kwargs
+                model=model, temperature=temperature, max_tokens=max_tokens, **kwargs
             )
             self.is_router = False
 
     def _filter_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Filter out ACE-specific parameters that shouldn't go to LangChain."""
-        ace_specific_params = {'refinement_round', 'max_refinement_rounds'}
+        ace_specific_params = {"refinement_round", "max_refinement_rounds"}
         return {k: v for k, v in kwargs.items() if k not in ace_specific_params}
 
     def complete(self, prompt: str, **kwargs) -> LLMResponse:
@@ -121,7 +121,7 @@ class LangChainLiteLLMClient(LLMClient):
             }
 
             # Add usage information if available
-            if hasattr(response, 'usage_metadata') and response.usage_metadata:
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
                 metadata["usage"] = {
                     "prompt_tokens": response.usage_metadata.get("input_tokens"),
                     "completion_tokens": response.usage_metadata.get("output_tokens"),
@@ -131,12 +131,11 @@ class LangChainLiteLLMClient(LLMClient):
             # Add router information if using router
             if self.is_router:
                 metadata["router"] = True
-                metadata["model_used"] = response.response_metadata.get("model_name", self.model)
+                metadata["model_used"] = response.response_metadata.get(
+                    "model_name", self.model
+                )
 
-            return LLMResponse(
-                text=response.content,
-                raw=metadata
-            )
+            return LLMResponse(text=response.content, raw=metadata)
 
         except Exception as e:
             logger.error(f"Error in LangChain completion: {e}")
@@ -165,7 +164,7 @@ class LangChainLiteLLMClient(LLMClient):
             }
 
             # Add usage information if available
-            if hasattr(response, 'usage_metadata') and response.usage_metadata:
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
                 metadata["usage"] = {
                     "prompt_tokens": response.usage_metadata.get("input_tokens"),
                     "completion_tokens": response.usage_metadata.get("output_tokens"),
@@ -175,12 +174,11 @@ class LangChainLiteLLMClient(LLMClient):
             # Add router information if using router
             if self.is_router:
                 metadata["router"] = True
-                metadata["model_used"] = response.response_metadata.get("model_name", self.model)
+                metadata["model_used"] = response.response_metadata.get(
+                    "model_name", self.model
+                )
 
-            return LLMResponse(
-                text=response.content,
-                raw=metadata
-            )
+            return LLMResponse(text=response.content, raw=metadata)
 
         except Exception as e:
             logger.error(f"Error in async LangChain completion: {e}")
@@ -201,7 +199,7 @@ class LangChainLiteLLMClient(LLMClient):
 
         try:
             for chunk in self.llm.stream(prompt, **filtered_kwargs):
-                if hasattr(chunk, 'content') and chunk.content:
+                if hasattr(chunk, "content") and chunk.content:
                     yield chunk.content
         except Exception as e:
             logger.error(f"Error in LangChain streaming: {e}")
@@ -222,7 +220,7 @@ class LangChainLiteLLMClient(LLMClient):
 
         try:
             async for chunk in self.llm.astream(prompt, **filtered_kwargs):
-                if hasattr(chunk, 'content') and chunk.content:
+                if hasattr(chunk, "content") and chunk.content:
                     yield chunk.content
         except Exception as e:
             logger.error(f"Error in async LangChain streaming: {e}")

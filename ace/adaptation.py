@@ -8,7 +8,14 @@ from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence
 
 from .playbook import Playbook
-from .roles import Curator, CuratorOutput, Generator, GeneratorOutput, Reflector, ReflectorOutput
+from .roles import (
+    Curator,
+    CuratorOutput,
+    Generator,
+    GeneratorOutput,
+    Reflector,
+    ReflectorOutput,
+)
 
 
 @dataclass
@@ -116,7 +123,9 @@ class AdapterBase:
         serialized = json.dumps(reflection.raw, ensure_ascii=False)
         self._recent_reflections.append(serialized)
         if len(self._recent_reflections) > self.reflection_window:
-            self._recent_reflections = self._recent_reflections[-self.reflection_window :]
+            self._recent_reflections = self._recent_reflections[
+                -self.reflection_window :
+            ]
 
     def _apply_bullet_tags(self, reflection: ReflectorOutput) -> None:
         for tag in reflection.bullet_tags:
@@ -125,7 +134,9 @@ class AdapterBase:
             except ValueError:
                 continue
 
-    def _question_context(self, sample: Sample, environment_result: EnvironmentResult) -> str:
+    def _question_context(
+        self, sample: Sample, environment_result: EnvironmentResult
+    ) -> str:
         parts = [
             f"question: {sample.question}",
             f"context: {sample.context}",
@@ -135,7 +146,9 @@ class AdapterBase:
         ]
         return "\n".join(parts)
 
-    def _progress_string(self, epoch: int, total_epochs: int, step: int, total_steps: int) -> str:
+    def _progress_string(
+        self, epoch: int, total_epochs: int, step: int, total_steps: int
+    ) -> str:
         return f"epoch {epoch}/{total_epochs} · sample {step}/{total_steps}"
 
     def _process_sample(
@@ -169,7 +182,9 @@ class AdapterBase:
             reflection=reflection,
             playbook=self.playbook,
             question_context=self._question_context(sample, env_result),
-            progress=self._progress_string(epoch, total_epochs, step_index, total_steps),
+            progress=self._progress_string(
+                epoch, total_epochs, step_index, total_steps
+            ),
         )
         self.playbook.apply_delta(curator_output.delta)
         return AdapterStepResult(

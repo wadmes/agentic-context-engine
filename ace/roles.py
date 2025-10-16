@@ -141,8 +141,7 @@ class Generator:
                 if attempt + 1 >= self.max_retries:
                     break
                 prompt = (
-                    base_prompt
-                    + "\n\n务必仅输出单个有效 JSON 对象，"
+                    base_prompt + "\n\n务必仅输出单个有效 JSON 对象，"
                     "请转义所有引号或改用单引号，避免输出额外文本。"
                 )
         raise RuntimeError("Generator failed to produce valid JSON.") from last_error
@@ -240,7 +239,11 @@ class Reflector:
                     tags_payload = data.get("bullet_tags", [])
                     if isinstance(tags_payload, Sequence):
                         for item in tags_payload:
-                            if isinstance(item, dict) and "id" in item and "tag" in item:
+                            if (
+                                isinstance(item, dict)
+                                and "id" in item
+                                and "tag" in item
+                            ):
                                 bullet_tags.append(
                                     BulletTag(
                                         id=str(item["id"]), tag=str(item["tag"]).lower()
@@ -265,8 +268,7 @@ class Reflector:
                     if attempt + 1 >= self.max_retries:
                         break
                     prompt = (
-                        base_prompt
-                        + "\n\n请严格输出有效 JSON，对双引号进行转义，"
+                        base_prompt + "\n\n请严格输出有效 JSON，对双引号进行转义，"
                         "不要输出额外解释性文本。"
                     )
         if result is None:

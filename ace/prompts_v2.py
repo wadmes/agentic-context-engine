@@ -613,6 +613,7 @@ Begin response with `{{` and end with `}}`
 # PROMPT MANAGER
 # ================================
 
+
 class PromptManager:
     """
     Manages prompt versions and selection based on context.
@@ -644,7 +645,7 @@ class PromptManager:
         "curator": {
             "1.0": "ace.prompts.CURATOR_PROMPT",
             "2.0": CURATOR_V2_PROMPT,
-        }
+        },
     }
 
     def __init__(self, default_version: str = "2.0"):
@@ -658,9 +659,7 @@ class PromptManager:
         self.usage_stats: Dict[str, int] = {}
 
     def get_generator_prompt(
-        self,
-        domain: Optional[str] = None,
-        version: Optional[str] = None
+        self, domain: Optional[str] = None, version: Optional[str] = None
     ) -> str:
         """
         Get generator prompt for specific domain and version.
@@ -683,6 +682,7 @@ class PromptManager:
         if isinstance(prompt, str) and prompt.startswith("ace."):
             # Handle v1 prompt references
             from ace import prompts
+
             prompt = getattr(prompts, prompt.split(".")[-1])
 
         # Track usage
@@ -691,8 +691,7 @@ class PromptManager:
         # Add current date if v2 prompt
         if "current_date" in prompt:
             prompt = prompt.replace(
-                "{current_date}",
-                datetime.now().strftime("%Y-%m-%d")
+                "{current_date}", datetime.now().strftime("%Y-%m-%d")
             )
 
         return prompt
@@ -704,6 +703,7 @@ class PromptManager:
 
         if isinstance(prompt, str) and prompt.startswith("ace."):
             from ace import prompts
+
             prompt = getattr(prompts, prompt.split(".")[-1])
 
         self._track_usage(f"reflector-{version}")
@@ -716,6 +716,7 @@ class PromptManager:
 
         if isinstance(prompt, str) and prompt.startswith("ace."):
             from ace import prompts
+
             prompt = getattr(prompts, prompt.split(".")[-1])
 
         self._track_usage(f"curator-{version}")
@@ -741,6 +742,7 @@ class PromptManager:
 # ================================
 # PROMPT VALIDATION UTILITIES
 # ================================
+
 
 def validate_prompt_output(output: str, role: str) -> tuple[bool, list[str]]:
     """

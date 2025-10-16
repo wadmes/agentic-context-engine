@@ -134,7 +134,9 @@ class TransformersLLMClient(LLMClient):
             return str(generated)
 
         # Older versions might return {"generated_text": "..."}
-        if isinstance(candidate, dict) and isinstance(candidate.get("generated_text"), str):
+        if isinstance(candidate, dict) and isinstance(
+            candidate.get("generated_text"), str
+        ):
             return candidate["generated_text"].strip()
 
         # Ultimate fallback: string representation.

@@ -84,7 +84,9 @@ class Playbook:
         bullet.updated_at = datetime.now(timezone.utc).isoformat()
         return bullet
 
-    def tag_bullet(self, bullet_id: str, tag: str, increment: int = 1) -> Optional[Bullet]:
+    def tag_bullet(
+        self, bullet_id: str, tag: str, increment: int = 1
+    ) -> Optional[Bullet]:
         bullet = self._bullets.get(bullet_id)
         if bullet is None:
             return None
@@ -114,7 +116,9 @@ class Playbook:
     # ------------------------------------------------------------------ #
     def to_dict(self) -> Dict[str, object]:
         return {
-            "bullets": {bullet_id: asdict(bullet) for bullet_id, bullet in self._bullets.items()},
+            "bullets": {
+                bullet_id: asdict(bullet) for bullet_id, bullet in self._bullets.items()
+            },
             "sections": self._sections,
             "next_id": self._next_id,
         }
@@ -228,9 +232,7 @@ class Playbook:
             parts.append(f"## {section}")
             for bullet_id in bullet_ids:
                 bullet = self._bullets[bullet_id]
-                counters = (
-                    f"(helpful={bullet.helpful}, harmful={bullet.harmful}, neutral={bullet.neutral})"
-                )
+                counters = f"(helpful={bullet.helpful}, harmful={bullet.harmful}, neutral={bullet.neutral})"
                 parts.append(f"- [{bullet.id}] {bullet.content} {counters}")
         return "\n".join(parts)
 

@@ -5,17 +5,33 @@ All notable changes to ACE Framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2025-10-16
 
 ### Added
+- **Experimental v2 Prompts** with state-of-the-art prompt engineering
+  - Confidence scoring at bullet and answer levels
+  - Domain-specific variants for math and code generation
+  - Hierarchical structure with identity headers and metadata
+  - Concrete examples and anti-patterns for better guidance
+  - PromptManager for version control and A/B testing
+- Comprehensive prompt engineering documentation (`docs/PROMPT_ENGINEERING.md`)
+- Advanced examples demonstrating v2 prompts (`examples/advanced_prompts_v2.py`)
+- Comparison script for v1 vs v2 prompts (`examples/compare_v1_v2_prompts.py`)
 - Playbook persistence with `save_to_file()` and `load_from_file()` methods
 - Example demonstrating playbook save/load functionality (`examples/playbook_persistence.py`)
 - py.typed file for PEP 561 type hint support
-- Documentation for playbook persistence in README
+- Mermaid flowchart visualization in README showing ACE learning loop
+- ACE_ROADMAP.md (untracked) for development planning
+
+### Changed
+- Enhanced docstrings with comprehensive examples throughout codebase
+- Improved README with v2 prompts section and visual diagrams
+- Updated formatting to comply with Black code style
 
 ### Fixed
 - README incorrectly referenced non-existent docs/ directory
 - Test badge URL in README (test.yml → tests.yml)
+- Code formatting issues detected by GitHub Actions
 
 ## [0.2.0] - 2025-10-15
 
