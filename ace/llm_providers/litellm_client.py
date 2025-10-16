@@ -222,6 +222,10 @@ class LiteLLMClient(LLMClient):
             "num_retries": kwargs.get("num_retries", self.config.max_retries),
         }
 
+        # Force JSON response for models that support it
+        if "gpt" in self.config.model.lower() and "json" in prompt.lower():
+            call_params["response_format"] = {"type": "json_object"}
+
         # Add API key if available
         if self.config.api_key:
             call_params["api_key"] = self.config.api_key
@@ -290,6 +294,10 @@ class LiteLLMClient(LLMClient):
             "timeout": kwargs.get("timeout", self.config.timeout),
             "num_retries": kwargs.get("num_retries", self.config.max_retries),
         }
+
+        # Force JSON response for models that support it
+        if "gpt" in self.config.model.lower() and "json" in prompt.lower():
+            call_params["response_format"] = {"type": "json_object"}
 
         # Add API key if available
         if self.config.api_key:

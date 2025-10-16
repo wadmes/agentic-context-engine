@@ -71,6 +71,7 @@ venv.bak/
 *.pdf
 ACE_IMPROVEMENTS.md
 ACE_ROADMAP.md
+DEMO_TODO.md
 *.egg-info/
 reports/
 docs/method_outline.md
