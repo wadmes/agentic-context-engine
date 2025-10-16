@@ -168,13 +168,22 @@ for task in real_world_tasks:
 ## 🏗️ Architecture
 
 ```mermaid
-graph LR
-    Q[Question] --> G[Generator]
-    G --> A[Answer]
-    A --> R[Reflector]
-    R --> C[Curator]
-    C --> P[Playbook]
-    P --> G
+---
+config:
+  look: neo
+  theme: neutral
+---
+flowchart LR
+    Playbook[("`**📚 Playbook**<br>(Evolving Context)<br><br>•Strategy Bullets<br> ✓ Helpful strategies <br>✗ Harmful patterns <br>○ Neutral observations`")]
+    Start(["**📝Query** <br>User prompt or question"]) --> Generator["**⚙️Generator** <br>Creates initial trajectory and answer with tags"]
+    Generator --> Reflector
+    Playbook -. Provides Context .-> Generator
+    Environment["**🌍 Task Environment**<br>Evaluates answer<br>Provides feedback"] -- Feedback+ <br>Optional Ground Truth --> Reflector
+    Reflector["**🔍 Reflector**<br>Analyzes and provides feedback what was helpful/harmful"]
+    Reflector --> Curator["**📝 Curator**<br>Produces improvement deltas"]
+    Curator --> DeltaOps["**🔀Merger** <br>Updates the playbook with deltas"]
+    DeltaOps -- Incremental<br>Updates --> Playbook
+    Generator <--> Environment
 ```
 
 ACE prevents "context collapse" through incremental updates rather than full rewrites, preserving valuable strategies over time.
