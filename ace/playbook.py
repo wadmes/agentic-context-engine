@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 from .delta import DeltaBatch, DeltaOperation
@@ -144,6 +145,44 @@ class Playbook:
         if not isinstance(payload, dict):
             raise ValueError("Playbook serialization must be a JSON object.")
         return cls.from_dict(payload)
+
+    def save_to_file(self, path: str) -> None:
+        """Save playbook to a JSON file.
+
+        Args:
+            path: File path where to save the playbook
+
+        Example:
+            >>> playbook.save_to_file("trained_model.json")
+        """
+        file_path = Path(path)
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with file_path.open("w", encoding="utf-8") as f:
+            f.write(self.dumps())
+
+    @classmethod
+    def load_from_file(cls, path: str) -> "Playbook":
+        """Load playbook from a JSON file.
+
+        Args:
+            path: File path to load the playbook from
+
+        Returns:
+            Playbook instance loaded from the file
+
+        Example:
+            >>> playbook = Playbook.load_from_file("trained_model.json")
+
+        Raises:
+            FileNotFoundError: If the file doesn't exist
+            json.JSONDecodeError: If the file contains invalid JSON
+            ValueError: If the JSON doesn't represent a valid playbook
+        """
+        file_path = Path(path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"Playbook file not found: {path}")
+        with file_path.open("r", encoding="utf-8") as f:
+            return cls.loads(f.read())
 
     # ------------------------------------------------------------------ #
     # Delta application

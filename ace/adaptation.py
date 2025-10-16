@@ -294,7 +294,7 @@ class OnlineAdapter(AdapterBase):
         >>> from ace.llm_providers import LiteLLMClient
         >>>
         >>> # Initialize with pre-trained playbook
-        >>> playbook = Playbook.from_file("pretrained_playbook.json")
+        >>> playbook = Playbook.load_from_file("pretrained_playbook.json")
         >>>
         >>> client = LiteLLMClient(model="gpt-4")
         >>> adapter = OnlineAdapter(
