@@ -220,16 +220,16 @@ We love contributions! Check out our [Contributing Guide](CONTRIBUTING.md) to ge
 
 ## Acknowledgment
 
+Based on the [ACE paper](https://arxiv.org/abs/2510.04618) and inspired by [Dynamic Cheatsheet](https://arxiv.org/abs/2504.07952).
+
+If you use ACE in your research, please cite:
+```bibtex
+@article{zhang2024ace,title={Agentic Context Engineering},author={Zhang et al.},journal={arXiv:2510.04618},year={2024}}
+```
+
 <div align="center">
 
 **Star ⭐ this repo if you find it useful!** <br>
 **Built with ❤️ by [Kayba](https://kayba.ai) and the open-source community**
-
-Based on the [ACE paper](https://arxiv.org/abs/2510.04618) and inspired by [Dynamic Cheatsheet](https://arxiv.org/abs/2504.07952).
-
-**If you use ACE in your research, please cite:**
-```bibtex
-@article{zhang2024ace,title={Agentic Context Engineering},author={Zhang et al.},journal={arXiv:2510.04618},year={2024}}
-```
 
 </div>
