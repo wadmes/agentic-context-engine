@@ -1,4 +1,6 @@
-# ACE Framework - Agentic Context Engine
+<img src="https://framerusercontent.com/images/XBGa12hY8xKYI6KzagBxpbgY4.png" alt="Kayba Logo" width="1080"/>
+
+# ACE Framework - Agentic Context Engine 
 
 **Build self-improving AI agents that learn from experience🧠.**
 
@@ -6,10 +8,49 @@ Agentic Context Engine is the easiest way to enhance your AI Agents through cont
 
 Star ⭐️ this repo if you find it useful!
 
+![GitHub stars](https://img.shields.io/github/stars/kayba-ai/agentic-context-engine?style=social)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![Discord](https://img.shields.io/discord/placeholder)](https://discord.gg/kayba)
+[![Twitter Follow](https://img.shields.io/twitter/follow/kaybaai?style=social)](https://twitter.com/kaybaai)
 [![PyPI version](https://badge.fury.io/py/ace-framework.svg)](https://badge.fury.io/py/ace-framework)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/Kayba-ai/agentic-context-engine/actions/workflows/tests.yml/badge.svg)](https://github.com/Kayba-ai/agentic-context-engine/actions)
+
+## Quick Start (~5 minutes)
+
+### 1. Install
+
+```bash
+pip install ace-framework
+```
+
+### 2. Set Your API Key
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+# Or use Claude, Gemini, or 100+ other providers
+```
+
+### 3. Create Your First ACE Agent
+
+```python
+from ace import ACE, LiteLLMClient
+
+# Initialize with any LLM
+client = LiteLLMClient(model="gpt-4o-mini")
+ace = ACE(client)
+
+# Teach your agent (it learns from examples)
+ace.learn([
+    {"question": "What is 2+2?", "answer": "4"},
+    {"question": "What is 5*3?", "answer": "15"}
+])
+
+# Now it can solve new problems
+result = ace.answer("What is 7*8?")
+print(result)  # Agent applies learned strategies
+```
+
+That's it! Your agent is now learning and improving. 🎉
 
 ## What is ACE Framework?
 
@@ -51,80 +92,6 @@ flowchart LR
     DeltaOps -- Incremental<br>Updates --> Playbook
     Generator <--> Environment
 ```
-
-## Quick Start (~5 minutes)
-
-### 1. Install
-
-```bash
-pip install ace-framework
-```
-
-### 2. Set Your API Key
-
-```bash
-export OPENAI_API_KEY="your-api-key"
-# Or use Claude, Gemini, or 100+ other providers
-```
-
-### 3. Create Your First ACE Agent
-
-```python
-from ace import (
-    OfflineAdapter, Generator, Reflector, Curator,
-    LiteLLMClient, Sample, TaskEnvironment, EnvironmentResult, Playbook
-)
-
-# Initialize with any LLM
-client = LiteLLMClient(model="gpt-4o-mini")
-
-# Create the three ACE roles
-generator = Generator(client)
-reflector = Reflector(client)
-curator = Curator(client)
-
-# Create an adapter with an empty playbook
-adapter = OfflineAdapter(
-    playbook=Playbook(),
-    generator=generator,
-    reflector=reflector,
-    curator=curator
-)
-
-# Define a simple environment for math problems
-class MathEnvironment(TaskEnvironment):
-    def evaluate(self, sample, generator_output):
-        question = sample.question
-        final_answer = generator_output.final_answer
-
-        # Check if the answer is correct
-        if "2+2" in question and final_answer.strip() == "4":
-            return EnvironmentResult(feedback="Correct!", ground_truth="4")
-        elif "5*3" in question and final_answer.strip() == "15":
-            return EnvironmentResult(feedback="Correct!", ground_truth="15")
-        else:
-            return EnvironmentResult(feedback="Let me check that calculation.")
-
-# Create training samples
-samples = [
-    Sample(question="What is 2+2?", ground_truth="4"),
-    Sample(question="What is 5*3?", ground_truth="15")
-]
-
-# Train the agent
-environment = MathEnvironment()
-results = adapter.run(samples, environment, epochs=1)
-
-# Now use the trained agent
-result = adapter.generator.generate(
-    "What is 7*8?",
-    adapter.playbook
-)
-print(result.final_answer)  # Agent applies learned strategies
-```
-
-That's it! Your agent is now learning and improving. 🎉
-
 ## Installation Options
 
 ```bash
@@ -170,10 +137,8 @@ client = LiteLLMClient(
 ### Basic Q&A Agent
 
 ```python
-from ace import (
-    OfflineAdapter, Generator, Reflector, Curator,
-    LiteLLMClient, Sample, TaskEnvironment, EnvironmentResult, Playbook
-)
+from ace import OfflineAdapter, Generator, Reflector, Curator
+from ace import LiteLLMClient, SimpleEnvironment
 
 # Setup components
 client = LiteLLMClient(model="gpt-4o-mini")
@@ -181,31 +146,14 @@ generator = Generator(client)
 reflector = Reflector(client)
 curator = Curator(client)
 
-# Create a simple Q&A environment
-class QAEnvironment(TaskEnvironment):
-    def evaluate(self, question, trajectory, final_answer):
-        # Simple evaluation based on known answers
-        if "capital of France" in question.lower():
-            if "paris" in final_answer.lower():
-                return EnvironmentResult(feedback="Correct!", ground_truth="Paris")
-        elif "2+2" in question:
-            if "4" in final_answer:
-                return EnvironmentResult(feedback="Correct!", ground_truth="4")
-        return EnvironmentResult(feedback="Answer provided.")
-
 # Create and train an adapter
-adapter = OfflineAdapter(
-    playbook=Playbook(),
-    generator=generator,
-    reflector=reflector,
-    curator=curator
-)
-environment = QAEnvironment()
+adapter = OfflineAdapter(generator, reflector, curator)
+environment = SimpleEnvironment()
 
 # Train on examples
 training_samples = [
-    Sample(question="What's the capital of France?", ground_truth="Paris"),
-    Sample(question="What's 2+2?", ground_truth="4")
+    {"question": "What's the capital of France?", "answer": "Paris"},
+    {"question": "What's 2+2?", "answer": "4"}
 ]
 
 results = adapter.run(training_samples, environment, epochs=2)
@@ -217,11 +165,7 @@ adapter.playbook.save_to_file("my_agent.json")
 ### Online Learning (Learn While Running)
 
 ```python
-from ace import OnlineAdapter, Playbook, Sample
-
-# Load an existing playbook or create a new one
-existing_playbook = Playbook.load_from_file("my_agent.json")
-# or Playbook() for a fresh start
+from ace import OnlineAdapter
 
 # Agent improves while processing real tasks
 adapter = OnlineAdapter(
@@ -232,15 +176,9 @@ adapter = OnlineAdapter(
 )
 
 # Process tasks one by one, learning from each
-real_world_tasks = [
-    Sample(question="What's 10*10?"),
-    Sample(question="What's the capital of Germany?")
-]
-
 for task in real_world_tasks:
-    result = adapter.run([task], environment, epochs=1)
+    result = adapter.process(task, environment)
     # Agent automatically updates its strategies
-    print(f"Answer: {result[0].final_answer}")
 ```
 
 ## Documentation
