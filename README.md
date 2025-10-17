@@ -125,18 +125,26 @@ for task in real_world_tasks:
 
 ## How does Agentic Context Engine (ACE) work?
 
-ACE is an implementation of **Agentic Context Engineering (ACE)** from the research paper: [Agentic Context Engineering: Evolving Contexts for Self-Improving Language Models](https://arxiv.org/abs/2510.04618)
-
-
 ACE uses three specialized roles that work together:
 
-1. **🎯 Generator** - Produces answers using the playbook
-2. **🔍 Reflector** - Analyzes what worked and what didn't
-3. **📝 Curator** - Updates the playbook with new strategies
+1. **🎯 Generator** - Executes tasks using learned strategies from the playbook
+2. **🔍 Reflector** - Analyzes what worked and what didn't after each execution
+3. **📝 Curator** - Updates the playbook with new strategies based on reflection
 
-The magic happens in the **Playbook** - a living document of strategies that evolves with experience.
+The magic happens in the **Playbook**—a living document of strategies that evolves with experience.
 
-ACE prevents "context collapse" through incremental updates rather than full rewrites, preserving valuable strategies over time.
+### The Learning Loop
+
+Task → Execute → Reflect → Curate → Playbook → Better Next Time ↑
+
+Each execution teaches your agent:
+
+- **✅ Successes** → Extract patterns that work
+- **❌ Failures** → Learn what to avoid
+- **🔧 Tool usage** → Discover which tools work best for which tasks
+- **🎯 Edge cases** → Remember rare scenarios and how to handle them
+
+**Key innovation:** All learning happens **in context** through incremental updates—no fine-tuning, no training data, and complete transparency into what your agent learned.
 
 ```mermaid
 ---
@@ -157,50 +165,7 @@ flowchart LR
     Generator <--> Environment
 ```
 
----
-
-## How does Agentic Context Engine (ACE) work?
-
-ACE uses three specialized roles that work together:
-
-1. **🎯 Generator** - Executes tasks using learned strategies from the playbook
-2. **🔍 Reflector** - Analyzes what worked and what didn't after each execution
-3. **📝 Curator** - Updates the playbook with new strategies based on reflection
-
-The magic happens in the **Playbook**—a living document of strategies that evolves with experience.
-
-### The Learning Loop
-
-Task → Execute → Reflect → Curate → Playbook → Better Next Time ↑ │ └──────────────────────────────────────────────────────┘
-
-Each execution teaches your agent:
-
-- **✅ Successes** → Extract patterns that work
-- **❌ Failures** → Learn what to avoid
-- **🔧 Tool usage** → Discover which tools work best for which tasks
-- **🎯 Edge cases** → Remember rare scenarios and how to handle them
-
-**Key innovation:** All learning happens **in context** through incremental updates—no fine-tuning, no training data, and complete transparency into what your agent learned.
-
-```mermaid
----
-config:
-  look: neo
-  theme: neutral
----
-flowchart LR
-    Playbook[("`**📚 Playbook**<br>(Evolving Context)<br><br>•Strategy Bullets<br> ✓ Helpful strategies <br>✗ Harmful patterns <br>○ Neutral observations`")]
-    Start(["**📝Query** <br>User prompt or question"]) --> Generator["**⚙️ Generator** <br>Executes task using playbook"]
-    Generator --> Reflector
-    Playbook -. Provides Context .-> Generator
-    Environment["**🌍 Task Environment**<br>Evaluates results<br>Provides feedback"] -- Feedback+ <br>Optional Ground Truth --> Reflector
-    Reflector["**🔍 Reflector**<br>Analyzes what was helpful/harmful"]
-    Reflector --> Curator["**📝 Curator**<br>Produces improvement deltas"]
-    Curator --> DeltaOps["**🔀 Merger** <br>Updates playbook incrementally"]
-    DeltaOps -- Incremental<br>Updates --> Playbook
-    Generator <--> Environment
 ACE prevents "context collapse" through incremental updates rather than full rewrites, preserving valuable strategies over time.
-```
 
 ---
 
