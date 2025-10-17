@@ -60,7 +60,7 @@ That's it! Your agent is now learning and improving. 🎉
 
 AI agents make the same mistakes repeatedly. Fine-tuning is expensive ($1K+ per iteration), slow (days/weeks), and requires labeled data.
 
-**ACE changes that.** Based on research from [Stanford & SambaNova](https://arxiv.org/abs/2510.04618), ACE enables agents to learn from execution feedback—no training data, no fine-tuning, just automatic improvement.
+**ACE changes that.** ACE enables agents to learn from execution feedback—no training data, no fine-tuning, just automatic improvement.
 
 ACE agents build a **"playbook"** of strategies that evolve based on experience—learning what works, what doesn't, and continuously improving.
 
@@ -124,6 +124,8 @@ for task in real_world_tasks:
 ---
 
 ## How does Agentic Context Engine (ACE) work?
+
+*Based on the [ACE research framework](https://arxiv.org/abs/2510.04618) from Stanford & SambaNova*
 
 ACE uses three specialized roles that work together:
 
