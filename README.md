@@ -230,7 +230,7 @@ If you use ACE in your research, please cite:
 
 <div align="center">
 
-<br><br>
+<br>
 
 **⭐ Star this repo if you find it useful!** <br><br>
 
