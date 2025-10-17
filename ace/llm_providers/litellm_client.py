@@ -217,18 +217,16 @@ class LiteLLMClient(LLMClient):
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
             "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
+            "top_p": kwargs.get("top_p", self.config.top_p),
             "timeout": kwargs.get("timeout", self.config.timeout),
             "num_retries": kwargs.get("num_retries", self.config.max_retries),
             "drop_params": True,  # Automatically drop unsupported parameters
         }
 
-        # Only add top_p if temperature is not set (for Anthropic compatibility)
-        if self.config.temperature == 0.0 and kwargs.get("temperature", 0.0) == 0.0:
-            call_params["top_p"] = kwargs.get("top_p", self.config.top_p)
-
-        # Force JSON response for models that support it
-        if "gpt" in self.config.model.lower() and "json" in prompt.lower():
-            call_params["response_format"] = {"type": "json_object"}
+        # Work around LiteLLM bug: explicitly drop top_p for Claude when temperature is set
+        # This can be removed once LiteLLM properly handles this with drop_params
+        if "claude" in self.config.model.lower() and call_params["temperature"] > 0:
+            call_params["additional_drop_params"] = ["top_p"]
 
         # Add API key if available
         if self.config.api_key:
@@ -294,18 +292,16 @@ class LiteLLMClient(LLMClient):
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
             "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
+            "top_p": kwargs.get("top_p", self.config.top_p),
             "timeout": kwargs.get("timeout", self.config.timeout),
             "num_retries": kwargs.get("num_retries", self.config.max_retries),
             "drop_params": True,  # Automatically drop unsupported parameters
         }
 
-        # Only add top_p if temperature is not set (for Anthropic compatibility)
-        if self.config.temperature == 0.0 and kwargs.get("temperature", 0.0) == 0.0:
-            call_params["top_p"] = kwargs.get("top_p", self.config.top_p)
-
-        # Force JSON response for models that support it
-        if "gpt" in self.config.model.lower() and "json" in prompt.lower():
-            call_params["response_format"] = {"type": "json_object"}
+        # Work around LiteLLM bug: explicitly drop top_p for Claude when temperature is set
+        # This can be removed once LiteLLM properly handles this with drop_params
+        if "claude" in self.config.model.lower() and call_params["temperature"] > 0:
+            call_params["additional_drop_params"] = ["top_p"]
 
         # Add API key if available
         if self.config.api_key:
