@@ -234,3 +234,10 @@ If you use ACE in your research, please cite:
 **Built with ❤️ by [Kayba](https://kayba.ai) and the open-source community**
 
 </div>
+
+<div align="center" style="background: linear-gradient(to bottom, #ffffff, #f6f8fa); padding: 30px; border-radius: 8px; margin-top: 40px; border: 1px solid #d0d7de;">
+
+**⭐ Star this repo if you find it useful!** <br><br>
+**Built with ❤️ by [Kayba](https://kayba.ai) and the open-source community**
+
+</div>
