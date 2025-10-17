@@ -11,9 +11,9 @@
 
 **AI agents that get smarter with every task 🧠**
 
-Agentic Context Engine learns from your agent's successes and failures, automatically building a playbook of strategies. No prompt engineering. No fine-tuning. Just plug in and watch your agents improve.
+Agentic Context Engine learns from your agent's successes and failures. Just plug in and watch your agents improve.
 
-⭐️ **Star this repo** if you're building self-improving agents
+Star ⭐️ this repo if you find it useful!
 
 ---
 
@@ -60,9 +60,7 @@ That's it! Your agent is now learning and improving. 🎉
 
 AI agents make the same mistakes repeatedly. Fine-tuning is expensive ($1K+ per iteration), slow (days/weeks), and requires labeled data.
 
-**ACE changes that.** ACE enables agents to learn from execution feedback—no training data, no fine-tuning, just automatic improvement.
-
-ACE agents build a **"playbook"** of strategies that evolve based on experience—learning what works, what doesn't, and continuously improving.
+ACE enables agents to learn from execution feedback-what works, what doesn't, and continuously improving. No training data, no fine-tuning, just automatic improvement.
 
 ### Clear Benefits
 - 📈 **20-35% Better Performance**: Proven improvements on complex tasks
@@ -128,28 +126,17 @@ for task in real_world_tasks:
 *Based on the [ACE research framework](https://arxiv.org/abs/2510.04618) from Stanford & SambaNova*
 
 ACE uses three specialized roles that work together:
-
 1. **🎯 Generator** - Executes tasks using learned strategies from the playbook
 2. **🔍 Reflector** - Analyzes what worked and what didn't after each execution
 3. **📝 Curator** - Updates the playbook with new strategies based on reflection
 
-The magic happens in the **Playbook**—a living document of strategies that evolves with experience.
-
-### The Learning Loop
-
-```
-Task → Execute → Reflect → Curate → Playbook → Better Next Time
-  ↑                                                      │
-  └──────────────────────────────────────────────────────┘
-```
-
 Each execution teaches your agent:
-
 - **✅ Successes** → Extract patterns that work
 - **❌ Failures** → Learn what to avoid
 - **🔧 Tool usage** → Discover which tools work best for which tasks
 - **🎯 Edge cases** → Remember rare scenarios and how to handle them
 
+The magic happens in the **Playbook**—a living document of strategies that evolves with experience. <br>
 **Key innovation:** All learning happens **in context** through incremental updates—no fine-tuning, no training data, and complete transparency into what your agent learned. This approach prevents "context collapse" by preserving valuable strategies rather than rewriting the entire playbook.
 
 ```mermaid
@@ -246,8 +233,7 @@ If you use ACE in your research, please cite:
 
 <br>
 
-**⭐ Star this repo if you find it useful!** <br><br>
-
-**Built with ❤️ by [Kayba](https://kayba.ai) and the open-source community**
+**⭐ Star this repo if you find it useful!** <br>
+**Built with ❤️ by [Kayba](https://kayba.ai) and the open-source community.**
 
 </div>
