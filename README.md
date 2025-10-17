@@ -76,7 +76,7 @@ ACE enables agents to learn from execution feedback-what works, what doesn't, an
 
 Watch ACE learn from its own mistakes in real-time! This demo shows how ACE handles the infamous "seahorse emoji problem" - a challenge where LLMs often hallucinate that a seahorse emoji exists (it doesn't).
 
-<video src="kayba_test_demo.mp4" width="100%" controls>
+<video src="kayba_test_demo.mp4" width="100%" autoplay loop muted>
   <a href="kayba_test_demo.mp4">Watch the demo</a>
 </video>
 
