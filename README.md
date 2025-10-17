@@ -7,6 +7,7 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/kaybaai?style=social)](https://twitter.com/kaybaai)
 [![PyPI version](https://badge.fury.io/py/ace-framework.svg)](https://badge.fury.io/py/ace-framework)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Dependencies](https://img.shields.io/badge/dependencies-pip--tools-green.svg)](https://pip-tools.readthedocs.io/)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 **AI agents that get smarter with every task 🧠**
@@ -35,21 +36,25 @@ export OPENAI_API_KEY="your-api-key"
 ### 3. Create Your First ACE Agent
 
 ```python
-from ace import ACE, LiteLLMClient
+from ace import LiteLLMClient, Generator, Reflector, Curator, Playbook
 
 # Initialize with any LLM
 client = LiteLLMClient(model="gpt-4o-mini")
-ace = ACE(client)
+generator = Generator(client)
+reflector = Reflector(client)
+curator = Curator(client)
+playbook = Playbook()
 
-# Teach your agent (it learns from examples)
-ace.learn([
-    {"question": "What is 2+2?", "answer": "4"},
-    {"question": "What is 5*3?", "answer": "15"}
-])
+# Teach your agent through examples
+# (See examples/ folder for complete training patterns)
 
-# Now it can solve new problems
-result = ace.answer("What is 7*8?")
-print(result)  # Agent applies learned strategies
+# Now it can solve new problems with learned strategies
+result = generator.generate(
+    question="What is 7*8?",
+    context="",
+    playbook=playbook
+)
+print(result.final_answer)  # Agent applies learned strategies
 ```
 
 That's it! Your agent is now learning and improving. 🎉
@@ -144,7 +149,47 @@ pip install ace-framework[all]
 
 # Development
 pip install ace-framework[dev]
+
+# Development from source (contributors)
+git clone https://github.com/kayba-ai/agentic-context-engine
+cd agentic-context-engine
+pip install -r requirements.txt
+pip install -e .
 ```
+
+---
+
+## For Contributors: Dependency Management
+
+This project uses **pip-tools** for automatic dependency locking to ensure reproducible builds and prevent version conflicts.
+
+### Quick Start for Contributors
+```bash
+# Clone and set up development environment
+git clone https://github.com/kayba-ai/agentic-context-engine
+cd agentic-context-engine
+pip install -r requirements.txt
+pip install -e .
+
+# Run the demo
+python examples/kayba_ace_test.py
+```
+
+### Managing Dependencies
+```bash
+# Install pip-tools
+pip install pip-tools
+
+# Update dependencies: edit requirements.in, then:
+pip-compile requirements.in
+
+# Sync your environment to match lock file exactly
+pip-sync requirements.txt
+```
+
+**Files:**
+- `requirements.in` - High-level dependencies (edit this to add/update)
+- `requirements.txt` - Locked versions with complete dependency tree (auto-generated)
 
 ---
 
