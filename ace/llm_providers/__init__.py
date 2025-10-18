@@ -1,6 +1,6 @@
 """Production LLM client implementations for ACE."""
 
-from .litellm_client import LiteLLMClient
+from .litellm_client import LiteLLMClient, LiteLLMConfig
 
 try:
     from .langchain_client import LangChainLiteLLMClient
@@ -9,5 +9,6 @@ except ImportError:
 
 __all__ = [
     "LiteLLMClient",
+    "LiteLLMConfig",
     "LangChainLiteLLMClient",
 ]

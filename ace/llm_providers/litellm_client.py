@@ -51,6 +51,10 @@ class LiteLLMConfig:
     # Debugging
     verbose: bool = False
 
+    # Claude-specific parameter handling
+    # Anthropic API limitation: temperature and top_p cannot both be specified
+    sampling_priority: str = "temperature"  # "temperature" | "top_p" | "top_k"
+
 
 class LiteLLMClient(LLMClient):
     """
@@ -65,12 +69,26 @@ class LiteLLMClient(LLMClient):
     - AWS Bedrock
     - 100+ other providers
 
+    Claude Parameter Handling:
+    Due to Anthropic API limitations, temperature and top_p cannot both be specified
+    for Claude models. This client automatically resolves parameter conflicts using
+    priority-based resolution following industry best practices:
+
+    - "temperature" (default): Temperature takes precedence, Anthropic-recommended
+    - "top_p": Nucleus sampling takes precedence, for advanced scenarios
+    - "top_k": Top-k sampling takes precedence, for advanced use only
+
     Example:
         >>> client = LiteLLMClient(model="gpt-4")
         >>> response = client.complete("What is the capital of France?")
 
-        >>> # Using Claude
-        >>> client = LiteLLMClient(model="claude-3-sonnet-20240229")
+        >>> # Using Claude with sampling priority
+        >>> from ace.llm_providers.litellm_client import LiteLLMConfig
+        >>> config = LiteLLMConfig(
+        ...     model="claude-3-sonnet-20240229",
+        ...     sampling_priority="temperature"
+        ... )
+        >>> client = LiteLLMClient(config=config)
 
         >>> # Using with fallbacks
         >>> client = LiteLLMClient(
@@ -81,12 +99,13 @@ class LiteLLMClient(LLMClient):
 
     def __init__(
         self,
-        model: str,
+        model: Optional[str] = None,
         api_key: Optional[str] = None,
         api_base: Optional[str] = None,
         temperature: float = 0.0,
         max_tokens: int = 512,
         fallbacks: Optional[List[str]] = None,
+        sampling_priority: str = "temperature",
         config: Optional[LiteLLMConfig] = None,
         **kwargs: Any,
     ) -> None:
@@ -100,6 +119,7 @@ class LiteLLMClient(LLMClient):
             temperature: Sampling temperature (0.0 for deterministic)
             max_tokens: Maximum tokens to generate
             fallbacks: List of fallback models if primary fails
+            sampling_priority: Priority for Claude parameter resolution ("temperature", "top_p", "top_k")
             config: Complete configuration object (overrides other params)
             **kwargs: Additional provider-specific parameters
         """
@@ -108,18 +128,15 @@ class LiteLLMClient(LLMClient):
                 "LiteLLM is not installed. Install with: pip install litellm"
             )
 
-        super().__init__(model=model)
-
         # Use provided config or create from parameters
         if config:
             self.config = config
+            # Use model from config if not provided as parameter
+            if model is None:
+                model = config.model
         else:
-            # Handle Anthropic API limitation: don't set top_p for Claude when temperature > 0
-            config_kwargs = kwargs.copy()
-            if "claude" in model.lower() and temperature > 0:
-                # Remove top_p from kwargs to avoid the Anthropic API error
-                config_kwargs.pop("top_p", None)
-
+            if model is None:
+                raise ValueError("Either 'model' parameter or 'config' with model must be provided")
             self.config = LiteLLMConfig(
                 model=model,
                 api_key=api_key,
@@ -127,12 +144,11 @@ class LiteLLMClient(LLMClient):
                 temperature=temperature,
                 max_tokens=max_tokens,
                 fallbacks=fallbacks,
-                **config_kwargs,
+                sampling_priority=sampling_priority,
+                **kwargs,
             )
 
-            # Set top_p to None for Claude models with temperature > 0
-            if "claude" in model.lower() and temperature > 0:
-                self.config.top_p = None
+        super().__init__(model=model)
 
         # Set up API keys from environment if not provided
         self._setup_api_keys()
@@ -207,6 +223,93 @@ class LiteLLMClient(LLMClient):
             timeout=self.config.timeout,
         )
 
+    @staticmethod
+    def _resolve_sampling_params(params: Dict[str, Any], model: str, sampling_priority: str = "temperature") -> Dict[str, Any]:
+        """
+        Single source of truth for parameter conflict resolution.
+
+        Anthropic API limitation: temperature and top_p cannot both be specified.
+        This follows industry best practices with clear priority rules.
+
+        Priority order (configurable):
+        1. temperature (default, Anthropic-recommended for most cases)
+        2. top_p (nucleus sampling, advanced scenarios)
+        3. top_k (advanced use only)
+
+        Args:
+            params: Parameters dictionary to resolve
+            model: Model name to check if Claude
+            sampling_priority: 'temperature' (default), 'top_p', or 'top_k'
+
+        Returns:
+            Clean parameters dict with conflicts resolved
+
+        Raises:
+            ValueError: If sampling_priority is invalid
+        """
+        # Only apply to Claude models
+        if "claude" not in model.lower():
+            return params
+
+        if sampling_priority not in ["temperature", "top_p", "top_k"]:
+            raise ValueError(f"Invalid sampling_priority: {sampling_priority}. Must be one of: temperature, top_p, top_k")
+
+        resolved = params.copy()
+
+        # Check which sampling params are present and not None
+        has_temperature = 'temperature' in resolved and resolved['temperature'] is not None
+        has_top_p = 'top_p' in resolved and resolved['top_p'] is not None
+        has_top_k = 'top_k' in resolved and resolved['top_k'] is not None
+
+        # Remove None parameters early
+        if 'temperature' in resolved and resolved['temperature'] is None:
+            resolved.pop('temperature')
+        if 'top_p' in resolved and resolved['top_p'] is None:
+            resolved.pop('top_p')
+        if 'top_k' in resolved and resolved['top_k'] is None:
+            resolved.pop('top_k')
+
+        # Apply priority-based resolution
+        if sampling_priority == "temperature" and has_temperature and resolved['temperature'] > 0:
+            # Non-zero temperature takes precedence - remove others
+            resolved.pop('top_p', None)
+            resolved.pop('top_k', None)
+            if has_top_p or has_top_k:
+                logger.info(f"Claude model {model}: Using temperature={resolved['temperature']}, ignoring other sampling params")
+
+        elif sampling_priority == "top_p" and has_top_p:
+            # top_p takes precedence - remove others
+            resolved.pop('temperature', None)
+            resolved.pop('top_k', None)
+            if has_temperature or has_top_k:
+                logger.info(f"Claude model {model}: Using top_p={resolved['top_p']}, ignoring other sampling params")
+
+        elif sampling_priority == "top_k" and has_top_k:
+            # top_k takes precedence - remove others
+            resolved.pop('temperature', None)
+            resolved.pop('top_p', None)
+            if has_temperature or has_top_p:
+                logger.info(f"Claude model {model}: Using top_k={resolved['top_k']}, ignoring other sampling params")
+
+        else:
+            # Fallback: use default priority (temperature > top_p > top_k)
+            # Special case: if temperature is 0, allow top_p to take precedence
+            if has_temperature and resolved['temperature'] > 0:
+                # Non-zero temperature takes precedence over everything
+                resolved.pop('top_p', None)
+                resolved.pop('top_k', None)
+            elif has_top_p:
+                # top_p takes precedence over temperature=0 and top_k
+                resolved.pop('temperature', None)
+                resolved.pop('top_k', None)
+            elif has_temperature:
+                # Only temperature (including 0), remove others
+                resolved.pop('top_p', None)
+                resolved.pop('top_k', None)
+            # If only top_k is set, keep it
+
+        return resolved
+
     def complete(self, prompt: str, **kwargs: Any) -> LLMResponse:
         """
         Generate completion for the given prompt.
@@ -222,7 +325,7 @@ class LiteLLMClient(LLMClient):
         messages = [{"role": "user", "content": prompt}]
 
         # Merge config with runtime kwargs
-        call_params = {
+        merged_params = {
             "model": self.config.model,
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
@@ -232,34 +335,33 @@ class LiteLLMClient(LLMClient):
             "drop_params": True,  # Automatically drop unsupported parameters
         }
 
-        # Only add top_p if it's not None (to avoid Anthropic API limitation)
-        top_p_value = kwargs.get("top_p", self.config.top_p)
-        if top_p_value is not None:
-            call_params["top_p"] = top_p_value
+        # Add optional sampling parameters if provided
+        if kwargs.get("top_p") is not None or self.config.top_p is not None:
+            merged_params["top_p"] = kwargs.get("top_p", self.config.top_p)
+        if kwargs.get("top_k") is not None:
+            merged_params["top_k"] = kwargs.get("top_k")
 
-        # Work around Anthropic API limitation: cannot specify both temperature and top_p
-        if "claude" in self.config.model.lower() and call_params["temperature"] > 0:
-            call_params.pop("top_p", None)
+        # Apply single-point parameter resolution for Claude models
+        call_params = self._resolve_sampling_params(
+            merged_params,
+            self.config.model,
+            self.config.sampling_priority
+        )
 
-        # Add API key if available
+        # Add API credentials
         if self.config.api_key:
             call_params["api_key"] = self.config.api_key
         if self.config.api_base:
             call_params["api_base"] = self.config.api_base
 
-        # Filter out ACE-specific parameters and add remaining kwargs
+        # Add remaining kwargs (excluding ACE-specific and already-handled parameters)
         ace_specific_params = {"refinement_round", "max_refinement_rounds", "stream_thinking"}
-
-        # Also exclude top_p for Claude models with temperature > 0
-        excluded_params = ace_specific_params.copy()
-        if "claude" in self.config.model.lower() and call_params["temperature"] > 0:
-            excluded_params.add("top_p")
-
+        handled_params = {"temperature", "top_p", "top_k", "max_tokens", "timeout", "num_retries"}
         call_params.update(
             {
                 k: v
                 for k, v in kwargs.items()
-                if k not in call_params and k not in excluded_params
+                if k not in call_params and k not in ace_specific_params and k not in handled_params
             }
         )
 
@@ -306,7 +408,7 @@ class LiteLLMClient(LLMClient):
         messages = [{"role": "user", "content": prompt}]
 
         # Merge config with runtime kwargs
-        call_params = {
+        merged_params = {
             "model": self.config.model,
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
@@ -316,34 +418,33 @@ class LiteLLMClient(LLMClient):
             "drop_params": True,  # Automatically drop unsupported parameters
         }
 
-        # Only add top_p if it's not None (to avoid Anthropic API limitation)
-        top_p_value = kwargs.get("top_p", self.config.top_p)
-        if top_p_value is not None:
-            call_params["top_p"] = top_p_value
+        # Add optional sampling parameters if provided
+        if kwargs.get("top_p") is not None or self.config.top_p is not None:
+            merged_params["top_p"] = kwargs.get("top_p", self.config.top_p)
+        if kwargs.get("top_k") is not None:
+            merged_params["top_k"] = kwargs.get("top_k")
 
-        # Work around Anthropic API limitation: cannot specify both temperature and top_p
-        if "claude" in self.config.model.lower() and call_params["temperature"] > 0:
-            call_params.pop("top_p", None)
+        # Apply single-point parameter resolution for Claude models
+        call_params = self._resolve_sampling_params(
+            merged_params,
+            self.config.model,
+            self.config.sampling_priority
+        )
 
-        # Add API key if available
+        # Add API credentials
         if self.config.api_key:
             call_params["api_key"] = self.config.api_key
         if self.config.api_base:
             call_params["api_base"] = self.config.api_base
 
-        # Filter out ACE-specific parameters and add remaining kwargs
+        # Add remaining kwargs (excluding ACE-specific and already-handled parameters)
         ace_specific_params = {"refinement_round", "max_refinement_rounds", "stream_thinking"}
-
-        # Also exclude top_p for Claude models with temperature > 0
-        excluded_params = ace_specific_params.copy()
-        if "claude" in self.config.model.lower() and call_params["temperature"] > 0:
-            excluded_params.add("top_p")
-
+        handled_params = {"temperature", "top_p", "top_k", "max_tokens", "timeout", "num_retries"}
         call_params.update(
             {
                 k: v
                 for k, v in kwargs.items()
-                if k not in call_params and k not in excluded_params
+                if k not in call_params and k not in ace_specific_params and k not in handled_params
             }
         )
 
