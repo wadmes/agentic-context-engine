@@ -156,6 +156,18 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+## Logic diagnosis workflow
+
+For hardware fault localization projects you can now use ACE's logic diagnosis mode:
+
+- `ace.logic.LogicDiagnosisGenerator` splits generation into a decision maker that selects an action (`graph`, `simulation`, `generation`, `matching`, or `submission`) and an action-specific prompt that executes the chosen toolchain. A `graph_mode` hyper-parameter lets you disable graph actions entirely or pick between DataFrame and NetworkX netlist representations.
+- `ace.logic.LogicDiagnosisEnvironment` compares the predicted stuck-at fault against ground-truth specs. Tester responses are provided as a JSON array where each element contains `input_patterns`, `good_outputs`, `faulty_outputs`, and `differences` collections for a **single** stuck-at fault instance.
+- See [`examples/logic_diagnosis.py`](examples/logic_diagnosis.py) for a complete offline training loop that routes tester responses through the new workflow.
+
+> **Note:** If you already have the PyPI `ace-framework` package installed globally, run `pip install -e .` from the repository root (or set `PYTHONPATH=$(pwd)`) so that the example and tests import the in-repo `ace` package rather than the published release.
+
+Pass the serialized tester responses via the generator's `tester_responses` keyword argument so that the appropriate specialist prompt can inspect the structured measurements.
+
 ## Configuration
 
 ACE works with any LLM provider through LiteLLM:

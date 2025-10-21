@@ -19,6 +19,15 @@ from .adaptation import (
     EnvironmentResult,
     AdapterStepResult,
 )
+from .logic import (
+    FaultSpec,
+    LogicDiagnosisEnvironment,
+    TesterResponse,
+    ActionDecision,
+    LogicDiagnosisGenerator,
+    LOGIC_DECISION_PROMPT,
+    LOGIC_ACTION_PROMPTS,
+)
 
 # Import production LLM clients if available
 try:
@@ -44,6 +53,13 @@ __all__ = [
     "GeneratorOutput",
     "ReflectorOutput",
     "CuratorOutput",
+    "FaultSpec",
+    "LogicDiagnosisEnvironment",
+    "TesterResponse",
+    "ActionDecision",
+    "LogicDiagnosisGenerator",
+    "LOGIC_DECISION_PROMPT",
+    "LOGIC_ACTION_PROMPTS",
     "OfflineAdapter",
     "OnlineAdapter",
     "Sample",
