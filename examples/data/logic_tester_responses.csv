@@ -1,0 +1,3 @@
+case_id,tester,pattern,response_note
+example_case,tester_a,t01,"Mismatch observed on PO_7"
+example_case,tester_b,t02,"Secondary mismatch on PO_3"

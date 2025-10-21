@@ -158,7 +158,8 @@ class TestCustomEnvironment(unittest.TestCase):
             reasoning="2+2=4",
             final_answer="4",
             bullet_ids=[],
-            raw={}
+            raw={},
+            metadata={}
         )
 
         result = env.evaluate(sample, output)

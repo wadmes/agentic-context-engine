@@ -19,6 +19,17 @@ from .adaptation import (
     EnvironmentResult,
     AdapterStepResult,
 )
+from .logic_diagnosis import (
+    ActionDefinition,
+    DecisionMaker,
+    DecisionMakerOutput,
+    LogicDiagnosisEnvironment,
+    LogicDiagnosisGenerator,
+    LogicDiagnosisToolset,
+    ExternalTool,
+    ToolResult,
+    build_default_action_definitions,
+)
 
 # Import production LLM clients if available
 try:
@@ -51,4 +62,13 @@ __all__ = [
     "EnvironmentResult",
     "AdapterStepResult",
     "LITELLM_AVAILABLE",
+    "LogicDiagnosisGenerator",
+    "DecisionMaker",
+    "DecisionMakerOutput",
+    "ActionDefinition",
+    "build_default_action_definitions",
+    "LogicDiagnosisEnvironment",
+    "LogicDiagnosisToolset",
+    "ExternalTool",
+    "ToolResult",
 ]

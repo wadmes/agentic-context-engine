@@ -251,12 +251,16 @@ sample = Sample(
 ### GeneratorOutput
 
 ```python
+from dataclasses import dataclass, field
+
+
 @dataclass
 class GeneratorOutput:
     reasoning: str
     final_answer: str
     bullet_ids: List[str]
     raw: Dict[str, Any]
+    metadata: Dict[str, Any] = field(default_factory=dict)
 ```
 
 ### ReflectorOutput
@@ -418,6 +422,67 @@ logging.getLogger("ace").setLevel(logging.DEBUG)
 5. **Test with dummy mode**: Validate logic without API calls
 6. **Use appropriate epochs**: 2-3 epochs usually sufficient
 7. **Implement custom environments**: Tailor evaluation to your task
+
+## Logic Diagnosis Extensions
+
+ACE includes optional helpers for stuck-at fault localization workflows.
+
+### DecisionMaker & LogicDiagnosisGenerator
+
+```python
+from ace import DummyLLMClient, Playbook
+from ace.logic_diagnosis import DecisionMaker, LogicDiagnosisGenerator, build_default_action_definitions
+
+llm = DummyLLMClient()
+llm.queue('{"reasoning": "Graph context first", "action": "graph", "objective": "Trace PO_7 cone"}')
+llm.queue('{"reasoning": "SA0 confirmed", "bullet_ids": [], "final_answer": "Fault at PO_7", "fault_prediction": {"fault_location": "PO_7", "fault_behavior": "stuck-at-0"}}')
+
+decision_maker = DecisionMaker(llm)
+actions = build_default_action_definitions(llm)
+generator = LogicDiagnosisGenerator(decision_maker=decision_maker, action_definitions=actions)
+
+playbook = Playbook()
+output = generator.generate(
+    question="Diagnose the SSL fault",
+    context="Case reference: example_case",
+    playbook=playbook,
+)
+
+print(output.metadata["selected_action"])  # -> graph
+print(output.metadata["fault_prediction"]["fault_location"])  # -> PO_7
+```
+
+### LogicDiagnosisEnvironment
+
+```python
+from pathlib import Path
+from ace import Sample
+from ace.logic_diagnosis import LogicDiagnosisEnvironment
+
+environment = LogicDiagnosisEnvironment(
+    responses_csv=Path("examples/data/logic_tester_responses.csv"),
+    truth_table={"example_case": {"fault_location": "PO_7", "fault_behavior": "stuck-at-0"}},
+)
+
+sample = Sample(
+    question="Diagnose the SSL fault",
+    context="Case reference: example_case",
+    metadata={"case_id": "example_case"},
+)
+
+result = environment.evaluate(sample, output)
+print(result.metrics)
+```
+
+### Toolset wrappers
+
+```python
+from ace.logic_diagnosis import LogicDiagnosisToolset
+
+toolset = LogicDiagnosisToolset()
+simulation = toolset.hope.run("--fault", "PO_7/SA0", check=False)
+print(simulation.stdout[:120])
+```
 
 ## Examples
 

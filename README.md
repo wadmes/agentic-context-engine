@@ -182,6 +182,25 @@ client = LiteLLMClient(
 
 ---
 
+## Logic diagnosis workflow support
+
+If you are building agents that perform structural stuck-at fault diagnosis, ACE now ships a
+domain-specific toolkit:
+
+- **Two-stage generator** – `LogicDiagnosisGenerator` chains a `DecisionMaker` with specialised
+  action prompts so a planner can route between graph analysis, simulation, matcher, Atalanta test
+  generation, or submission flows while keeping the standard reflection/curation loop intact.
+- **Environment feedback** – `LogicDiagnosisEnvironment` evaluates predictions against ground truth
+  fault metadata and surfaces tester response coverage directly from CSV logs.
+- **Tool wrappers** – `LogicDiagnosisToolset` provides lightweight subprocess helpers for the
+  provided command line utilities (`ganga`, `hope`, `atalanta`, `matcher`, `backconer`, and
+  `submit_tests`).
+
+See `examples/logic_diagnosis_example.py` for an end-to-end runnable stub that demonstrates how to
+combine the new components with a playbook and offline tester responses.
+
+---
+
 ## Documentation
 
 - [Quick Start Guide](docs/QUICK_START.md) - Get running in 5 minutes
