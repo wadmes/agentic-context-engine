@@ -3,7 +3,7 @@
 # Agentic Context Engine (ACE) 
 
 ![GitHub stars](https://img.shields.io/github/stars/kayba-ai/agentic-context-engine?style=social)
-[![Discord](https://img.shields.io/discord/1428139409211129948?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/kHuccZmvtx)
+[![Discord](https://img.shields.io/discord/1429935408145236131?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/mqCqH7sTyK)
 [![Twitter Follow](https://img.shields.io/twitter/follow/kaybaai?style=social)](https://twitter.com/kaybaai)
 [![PyPI version](https://badge.fury.io/py/ace-framework.svg)](https://badge.fury.io/py/ace-framework)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
