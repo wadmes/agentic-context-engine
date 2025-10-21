@@ -83,3 +83,7 @@ packages = ["ace", "ace.llm_providers"]
 
 [tool.setuptools.package-data]
 ace = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
