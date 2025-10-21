@@ -3,7 +3,7 @@
 # Agentic Context Engine (ACE) 
 
 ![GitHub stars](https://img.shields.io/github/stars/kayba-ai/agentic-context-engine?style=social)
-[![Discord](https://img.shields.io/discord/1428139409211129948?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/kHuccZmvtx)
+[![Discord](https://img.shields.io/discord/1429935408145236131?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/mqCqH7sTyK)
 [![Twitter Follow](https://img.shields.io/twitter/follow/kaybaai?style=social)](https://twitter.com/kaybaai)
 [![PyPI version](https://badge.fury.io/py/ace-framework.svg)](https://badge.fury.io/py/ace-framework)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -155,6 +155,18 @@ cd agentic-context-engine
 pip install -r requirements.txt
 pip install -e .
 ```
+
+## Logic diagnosis workflow
+
+For hardware fault localization projects you can now use ACE's logic diagnosis mode:
+
+- `ace.logic.LogicDiagnosisGenerator` splits generation into a decision maker that selects an action (`graph`, `simulation`, `generation`, `matching`, or `submission`) and an action-specific prompt that executes the chosen toolchain. A `graph_mode` hyper-parameter lets you disable graph actions entirely or pick between DataFrame and NetworkX netlist representations.
+- `ace.logic.LogicDiagnosisEnvironment` compares the predicted stuck-at fault against ground-truth specs. Tester responses are provided as a JSON array where each element contains `input_patterns`, `good_outputs`, `faulty_outputs`, and `differences` collections for a **single** stuck-at fault instance.
+- See [`examples/logic_diagnosis.py`](examples/logic_diagnosis.py) for a complete offline training loop that routes tester responses through the new workflow.
+
+> **Note:** If you already have the PyPI `ace-framework` package installed globally, run `pip install -e .` from the repository root (or set `PYTHONPATH=$(pwd)`) so that the example and tests import the in-repo `ace` package rather than the published release.
+
+Pass the serialized tester responses via the generator's `tester_responses` keyword argument so that the appropriate specialist prompt can inspect the structured measurements.
 
 ## Configuration
 
